@@ -4,8 +4,8 @@ This report sums up total costs by week.
 
 Anomaly Types:
   - Metric Anomaly: The week's total cost doubled or halved from the previous week.
-  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 time periods) by more than 2 standard deviations.
-  - Change Points: The mean of the next two values is double the mean of the two previous values. Shows a significant change in data
+  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 time periods) by more than 2.1 standard deviations.
+  - Change Points: Significant change in data (the mean double/halved over a month)
 ==================================================
 
 
@@ -35,14 +35,26 @@ Z-Score Anomaly:
 
 
 
+Week: 2018-50
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Change Point:
+  - Total Cost: $13802.25
+  - Previous Two Weeks Average Cost: $23447.21
+  - Next Two Weeks Average Cost: $8967.31
+
+
+
+
 Week: 2018-16
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------------------------------------------------
 Change Point:
   - Total Cost: $13225.51
-  - Previous Two Weeks Average Cost: $8346.38
-  - Next Two Weeks Average Cost: $17088.76
+  - Previous Two Weeks Average Cost: $7256.67
+  - Next Two Weeks Average Cost: $16975.01
 
 
 
@@ -53,7 +65,7 @@ Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory,
 ----------------------------------------------------------------------------------------------------
 Change Point:
   - Total Cost: $12665.57
-  - Previous Two Weeks Average Cost: $13078.75
+  - Previous Two Weeks Average Cost: $17396.19
   - Next Two Weeks Average Cost: $1881.11
 
 
@@ -65,7 +77,7 @@ Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory,
 ----------------------------------------------------------------------------------------------------
 Change Point:
   - Total Cost: $12355.25
-  - Previous Two Weeks Average Cost: $19916.66
+  - Previous Two Weeks Average Cost: $19848.12
   - Next Two Weeks Average Cost: $7273.34
 
 
@@ -77,8 +89,20 @@ Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory,
 ----------------------------------------------------------------------------------------------------
 Change Point:
   - Total Cost: $11602.99
-  - Previous Two Weeks Average Cost: $5083.50
-  - Next Two Weeks Average Cost: $13192.51
+  - Previous Two Weeks Average Cost: $5023.96
+  - Next Two Weeks Average Cost: $15801.01
+
+
+
+
+Week: 2018-13
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Change Point:
+  - Total Cost: $6371.12
+  - Previous Two Weeks Average Cost: $4790.04
+  - Next Two Weeks Average Cost: $15225.69
 
 
 
@@ -89,8 +113,8 @@ Grouping: All, Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------
 Change Point:
   - Total Cost: $6067.86
-  - Previous Two Weeks Average Cost: $6126.49
-  - Next Two Weeks Average Cost: $19804.60
+  - Previous Two Weeks Average Cost: $6306.88
+  - Next Two Weeks Average Cost: $20715.43
 
 
 

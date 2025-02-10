@@ -127,11 +127,11 @@ def detect_outliers(group_values=None):
 
     weekly_totals = weekly_totals.withColumn(
     "mean_next_2",
-    mean("total_metric").over(window_spec.rowsBetween(1, 2))
+    mean("total_metric").over(window_spec.rowsBetween(1, 3))
     )
     weekly_totals = weekly_totals.withColumn(
         "mean_prev_2",
-        mean("total_metric").over(window_spec.rowsBetween(-2, -1))
+        mean("total_metric").over(window_spec.rowsBetween(-3, -1))
     )
 
 
@@ -148,11 +148,11 @@ def detect_outliers(group_values=None):
     # Anomaly: If total metric is double or half of last week, with a difference of at least 10
     weekly_totals = weekly_totals.withColumn(
     "mean_next_2",
-    mean("total_metric").over(window_spec.rowsBetween(1, 2))
+    mean("total_metric").over(window_spec.rowsBetween(1, 3))
     )
     weekly_totals = weekly_totals.withColumn(
         "mean_prev_2",
-        mean("total_metric").over(window_spec.rowsBetween(-2, -1))
+        mean("total_metric").over(window_spec.rowsBetween(-3, -1))
     )
     weekly_totals = weekly_totals.withColumn(
     "change_point",
@@ -244,16 +244,99 @@ def compute_anomaly_counts():
     return anomaly_counts_dict
 
 
-def make_graph(result_df_pd, filtered_summary):
+def main():
+    """
+    Runs outlier detection for each test variable, finds the top most anomalous value for each variable, and then 
+    creates a report indicating the anomalous weeks and why they were flagged
+    """
+
+    preprocess_data()
+
+    if not test_variables:
+        print("No test variables found in config.yml. Exiting.")
+        return
+    
+    anomaly_counts_dict = compute_anomaly_counts()
+    
+    top_anomalous_values = {
+        test_variable: max(anomaly_counts_dict[test_variable], key=anomaly_counts_dict[test_variable].get)
+        for test_variable in anomaly_counts_dict if anomaly_counts_dict[test_variable]
+    }
+    
+    print("Top single anomalous values:",top_anomalous_values)
+
+    outlier_summary = {}
+
+    # Generate all possible groupings of the most anomalous values
+    test_variable_subsets = list(chain.from_iterable(combinations(test_variables, r) for r in range(len(test_variables) + 1)))
+
+    for subset in test_variable_subsets:
+        group_values = {var: top_anomalous_values[var] for var in subset if var in top_anomalous_values}
+        print(group_values)
+        # Run detect_outliers with the subset of test variables
+        result_df = detect_outliers(group_values)
+        if group_values == {}:
+            result_df_pd = result_df.toPandas()
+        elif group_values == {'betos_cd': 'T1H', 'pos_cd': 81, 'spec_cd': '69'}:
+            result_df_pd2 = result_df.toPandas()
+        # Collect weeks where is_outlier is True
+        outliers = result_df.filter(col("is_outlier") == True).collect()
+
+        for row in outliers:
+            week = row[time_variable]
+            if week not in outlier_summary:
+                outlier_summary[week] = {}
+
+            group_key = json.dumps(group_values, sort_keys=True)
+
+            if group_key not in outlier_summary[week]:
+                outlier_summary[week][group_key] = {
+                    "total_cost": row["total_metric"],
+                    "anomaly_type": [],
+                    "rolling_mean": row["rolling_mean"],
+                    "rolling_std": row["rolling_std"],
+                    "count": row["num_data_points"],
+                    "prev_count": row["prev_num_data_points"],
+                    "total_metric": row["total_metric"],
+                    "prev_total_metric": row["prev_total_metric"],
+                    "mean_prev_2": row["mean_prev_2"],
+                    "mean_next_2": row["mean_next_2"]
+                }
+
+            if row["is_outlier_z"]:
+                outlier_summary[week][group_key]["anomaly_type"].append("z_score")
+            if row["is_outlier_metric"]:
+                outlier_summary[week][group_key]["anomaly_type"].append("metric")
+            if row["change_point"]:
+                outlier_summary[week][group_key]["anomaly_type"].append("change")
+
+    # Apply filtering to only keep the most specific report
+    filtered_summary = {week: filter_anomalies(anomalies) for week, anomalies in outlier_summary.items()}
+    make_graph(result_df_pd,result_df_pd2, filtered_summary)
+    filtered_summary = dict(sorted(filtered_summary.items(), key=lambda x: -max(details["total_cost"] for details in x[1].values())))
+    report = generate_report(filtered_summary)
+
+    output_file = f"./{time_variable}/outliers_summary.txt"
+    with open(output_file, "w") as f:
+        f.write(report)
+
+    
+import matplotlib.pyplot as plt
+
+def make_graph(result_df_pd, result_df_pd2, filtered_summary):
     result_df_pd['lower_bound'] = result_df_pd['rolling_mean'] - (2.1 * result_df_pd['rolling_std'])
     result_df_pd['upper_bound'] = result_df_pd['rolling_mean'] + (2.1 * result_df_pd['rolling_std'])
 
     # Initialize figure
     plt.figure(figsize=(14, 6))
 
-    # Plot all data points as black dots and connect them with a line
+    # Plot primary data points as black dots and connect them with a line
     plt.plot(result_df_pd[time_variable], result_df_pd['total_metric'], linestyle='-', color='black', alpha=0.5)
-    plt.scatter(result_df_pd[time_variable], result_df_pd['total_metric'], color='black', label="Normal Data", alpha=1.0)  # Ensure normal points are black
+    plt.scatter(result_df_pd[time_variable], result_df_pd['total_metric'], color='black', label="Normal Data", alpha=1.0)
+
+    # Plot result_df_pd2 as a simple line (without scatter points)
+    plt.plot(result_df_pd2[time_variable], result_df_pd2['total_metric'], linestyle='-', color='red', alpha=0.7, label="Secondary Data")
+    plt.scatter(result_df_pd2[time_variable], result_df_pd2['total_metric'], color='black', label="Normal Data", alpha=1.0)
 
     # Fill the acceptable range area (shaded region)
     plt.fill_between(result_df_pd[time_variable], result_df_pd['lower_bound'], result_df_pd['upper_bound'], color='black', alpha=0.1, label="Acceptable Range (±2 Std Dev)")
@@ -289,12 +372,13 @@ def make_graph(result_df_pd, filtered_summary):
     # Ensure only unique legend labels are added
     legend_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=8, label=label)
                       for label, color in legend_labels.items()]
-    legend_handles.insert(0, plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='black', markersize=8, label="Normal Data"))
+    legend_handles.insert(0, plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='black', markersize=8, label="Entire Dataset"))
+    legend_handles.insert(1, plt.Line2D([0], [0], linestyle='-', color='gray', lw=2, label="Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory"))
 
     # Improve X-axis readability by only labeling anomalous weeks
     outlier_ticks = list(filtered_summary.keys())
     
-    plt.xticks(outlier_ticks, rotation=70, ha='right')  # Show only weeks with anomalies
+    plt.xticks(outlier_ticks, rotation=70, ha='right')
 
     if "week" in time_variable:
         plt.xlabel("Week")
@@ -305,87 +389,9 @@ def make_graph(result_df_pd, filtered_summary):
     plt.legend(handles=legend_handles)
     plt.grid(True, linestyle="--", alpha=0.5)
     plt.tight_layout()
+    
     # Save the plot
     plt.savefig(f"./{time_variable}/outliers.png", bbox_inches='tight')
-
-
-def main():
-    """
-    Runs outlier detection for each test variable, finds the top most anomalous value for each variable, and then 
-    creates a report indicating the anomalous weeks and why they were flagged
-    """
-
-    preprocess_data()
-
-    if not test_variables:
-        print("No test variables found in config.yml. Exiting.")
-        return
-    
-    anomaly_counts_dict = compute_anomaly_counts()
-    
-    top_anomalous_values = {
-        test_variable: max(anomaly_counts_dict[test_variable], key=anomaly_counts_dict[test_variable].get)
-        for test_variable in anomaly_counts_dict if anomaly_counts_dict[test_variable]
-    }
-    
-    print("Top single anomalous values:",top_anomalous_values)
-
-    outlier_summary = {}
-
-    # Generate all possible groupings of the most anomalous values
-    test_variable_subsets = list(chain.from_iterable(combinations(test_variables, r) for r in range(len(test_variables) + 1)))
-
-    for subset in test_variable_subsets:
-        group_values = {var: top_anomalous_values[var] for var in subset if var in top_anomalous_values}
-        print(group_values)
-        # Run detect_outliers with the subset of test variables
-        result_df = detect_outliers(group_values)
-        if group_values == {}:
-            result_df_pd = result_df.toPandas()
-        # Collect weeks where is_outlier is True
-        outliers = result_df.filter(col("is_outlier") == True).collect()
-
-        for row in outliers:
-            week = row[time_variable]
-            if week not in outlier_summary:
-                outlier_summary[week] = {}
-
-            group_key = json.dumps(group_values, sort_keys=True)
-
-            if group_key not in outlier_summary[week]:
-                outlier_summary[week][group_key] = {
-                    "total_cost": row["total_metric"],
-                    "anomaly_type": [],
-                    "rolling_mean": row["rolling_mean"],
-                    "rolling_std": row["rolling_std"],
-                    "count": row["num_data_points"],
-                    "prev_count": row["prev_num_data_points"],
-                    "total_metric": row["total_metric"],
-                    "prev_total_metric": row["prev_total_metric"],
-                    "mean_prev_2": row["mean_prev_2"],
-                    "mean_next_2": row["mean_next_2"]
-                }
-
-            if row["is_outlier_z"]:
-                outlier_summary[week][group_key]["anomaly_type"].append("z_score")
-            if row["is_outlier_metric"]:
-                outlier_summary[week][group_key]["anomaly_type"].append("metric")
-            if row["change_point"]:
-                outlier_summary[week][group_key]["anomaly_type"].append("change")
-
-    # Apply filtering to only keep the most specific report
-    filtered_summary = {week: filter_anomalies(anomalies) for week, anomalies in outlier_summary.items()}
-    make_graph(result_df_pd,filtered_summary)
-    filtered_summary = dict(sorted(filtered_summary.items(), key=lambda x: -max(details["total_cost"] for details in x[1].values())))
-    report = generate_report(filtered_summary)
-
-    output_file = f"./{time_variable}/outliers_summary.txt"
-    with open(output_file, "w") as f:
-        f.write(report)
-
-    
-
-
 
 
 
