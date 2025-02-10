@@ -1,0 +1,14 @@
+Column,Data Type
+index,int
+service_week,string
+service_year,int
+service_yearmonth,date
+service_date,timestamp
+betos_cd,string
+betos_desc,string
+pos_cd,int
+pos_desc,string
+spec_cd,string
+spec_desc,string
+paid_amount,double
+utilization,int
