@@ -24,8 +24,8 @@ spark.sparkContext.setLogLevel("ERROR")
 df = spark.read.option("header", "true").option("inferSchema", "true").csv("./input/data.csv")
 df.createOrReplaceTempView("service_data")
 
-#set up pivot table
-pivot_table_df = pd.read_csv("./input/codes_pivot_table.csv")
+#create pivot table for descriptions
+pivot_table_df = df.select("betos_cd", "betos_desc", "pos_cd", "pos_desc", "spec_cd", "spec_desc").distinct()
 
 
 
@@ -112,12 +112,12 @@ def detect_outliers(group_values=None):
     # Anomaly: If data points are double or half of last week, with a difference of at least 600
     weekly_totals = weekly_totals.withColumn(
     "is_outlier_metric",
-    ((col("total_metric") >= 2 * col("prev_total_metric")) |
-     (col("total_metric") <= 0.5 * col("prev_total_metric"))) &
+    ((col("total_metric") >= 3 * col("prev_total_metric")) |
+     (col("total_metric") <= 0.33 * col("prev_total_metric"))) &
     (spark_abs(col("total_metric") - col("prev_total_metric")) > 5000)
     )
 
-
+                                                                                                                                               
     # Anomaly: If total metric is double or half of last week, with a difference of at least 10
     weekly_totals = weekly_totals.withColumn(
     "mean_next_3",
@@ -266,8 +266,9 @@ def make_graph(result_df_pd, filtered_summary):
 
     # Improve X-axis readability by only labeling anomalous weeks
     outlier_ticks = list(filtered_summary.keys())
-    plt.xticks(outlier_ticks, rotation=45, ha='right')  # Show only weeks with anomalies
     
+    plt.xticks(outlier_ticks, rotation=45, ha='right')  # Show only weeks with anomalies
+
     if "week" in time_variable:
         plt.xlabel("Week")
     if "date" in time_variable:
@@ -375,6 +376,8 @@ def main():
 
 
 
+
+
 def get_descriptions(group_dict):
     """
     Converts a group dictionary with codes into readable descriptions using the pivot table.
@@ -385,12 +388,20 @@ def get_descriptions(group_dict):
     pos_cd = group_dict.get("pos_cd")
     spec_cd = group_dict.get("spec_cd")
 
-    # If the grouping contains None, replace it with 'All'
-    betos_desc = pivot_table_df.loc[pivot_table_df["betos_cd"] == betos_cd, "betos_desc"].values[0] if betos_cd else "All"
-    pos_desc = pivot_table_df.loc[pivot_table_df["pos_cd"] == pos_cd, "pos_desc"].values[0] if pos_cd else "All"
-    spec_desc = pivot_table_df.loc[pivot_table_df["spec_cd"] == spec_cd, "spec_desc"].values[0] if spec_cd else "All"
+    # Define a function to get the first matching row's value safely
+    def get_description(code, code_column, desc_column):
+        if code is None:
+            return "All"
+        result = pivot_table_df.filter(col(code_column) == code).select(desc_column).limit(1).collect()
+        return result[0][0] if result else "Unknown"  # Return "Unknown" if not found
+
+    # Retrieve descriptions
+    betos_desc = get_description(betos_cd, "betos_cd", "betos_desc")
+    pos_desc = get_description(pos_cd, "pos_cd", "pos_desc")
+    spec_desc = get_description(spec_cd, "spec_cd", "spec_desc")
 
     return (betos_desc, pos_desc, spec_desc)
+
 
 
 def filter_anomalies(week_anomalies):

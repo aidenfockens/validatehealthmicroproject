@@ -1,0 +1,756 @@
+ANOMALY REPORT SUMMARY
+==================================================
+This report sums up total costs by week.
+
+Anomaly Types:
+  - Metric Anomaly: The week's total cost doubled or halved from the previous week.
+  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 time periods) by more than 2 standard deviations.
+  - Change Points: The mean of the next two values is double the mean of the two previous values. Shows a significant change in data
+==================================================
+
+
+Week: 2018-06-25 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $11970.83
+  - Previous Week Cost: $224.86
+Z-Score Anomaly:
+  - Total Cost: $11970.83
+  - Rolling Mean: $3323.96
+  - Standard Deviation: $4057.89
+  - Z-Score: 2.13
+
+
+
+
+Week: 2018-04-30 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $10291.98
+  - Previous Week Cost: $40.20
+
+
+
+
+Week: 2018-09-10 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $9708.14
+  - Previous Week Cost: $86.58
+
+
+
+
+Week: 2018-07-23 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $9663.52
+  - Previous Week Cost: $21.09
+
+
+
+
+Week: 2018-12-07 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $9158.26
+  - Previous Week Cost: $2715.40
+
+
+
+
+Week: 2018-11-19 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $8487.08
+  - Previous Week Cost: $33.75
+
+
+
+
+Week: 2018-12-03 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $7514.28
+  - Previous Week Cost: $10.46
+
+
+
+
+Week: 2018-08-13 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $6614.28
+  - Previous Week Cost: $22.66
+
+
+
+
+Week: 2018-11-26 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $6575.03
+  - Previous Week Cost: $77.67
+
+
+
+
+Week: 2018-08-27 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $6540.98
+  - Previous Week Cost: $64.58
+
+
+
+
+Week: 2018-12-10 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5997.67
+  - Previous Week Cost: $48.26
+
+
+
+
+Week: 2018-06-04 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5761.58
+  - Previous Week Cost: $13.17
+
+
+
+
+Week: 2018-09-17 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5677.85
+  - Previous Week Cost: $54.60
+
+
+
+
+Week: 2018-11-05 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5649.67
+  - Previous Week Cost: $135.23
+
+
+
+
+Week: 2018-09-04 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5642.47
+  - Previous Week Cost: $154.38
+
+
+
+
+Week: 2018-05-21 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5609.41
+  - Previous Week Cost: $47.90
+
+
+
+
+Week: 2018-10-08 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5599.93
+  - Previous Week Cost: $89.12
+
+
+
+
+Week: 2018-04-23 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5582.46
+  - Previous Week Cost: $166.97
+
+
+
+
+Week: 2018-07-05 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $5564.86
+  - Previous Week Cost: $451.38
+
+
+
+
+Week: 2018-07-09 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5468.61
+  - Previous Week Cost: $107.32
+
+
+
+
+Week: 2018-07-16 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5444.54
+  - Previous Week Cost: $13.86
+
+
+
+
+Week: 2018-12-17 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5409.86
+  - Previous Week Cost: $199.60
+
+
+
+
+Week: 2018-06-11 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $5354.15
+  - Previous Week Cost: $24.82
+
+
+
+
+Week: 2018-07-30 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5292.48
+  - Previous Week Cost: $19.25
+
+
+
+
+Week: 2018-05-29 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $5206.92
+  - Previous Week Cost: $61.71
+
+
+
+
+Week: 2018-09-24 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $5200.21
+  - Previous Week Cost: $186.25
+
+
+
+
+Week: 2018-05-14 00:00:00
+========================================
+Grouping: All, All, Clinical Laboratory
+---------------------------------------
+Metric Anomaly:
+  - Total Cost: $5177.46
+  - Previous Week Cost: $130.30
+
+
+
+
+Week: 2018-10-29 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $5146.72
+  - Previous Week Cost: $29.32
+
+
+
+
+Week: 2018-07-02 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $5115.56
+  - Previous Week Cost: $66.52
+
+
+
+
+Week: 2018-10-01 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $5113.31
+  - Previous Week Cost: $57.75
+
+
+
+
+Week: 2018-07-27 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Change Point:
+  - Total Cost: $4685.74
+  - Previous Two Weeks Average Cost: $9926.21
+  - Next Two Weeks Average Cost: $1836.99
+
+
+
+
+Week: 2018-03-12 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $4284.38
+  - Rolling Mean: $799.26
+  - Standard Deviation: $1541.01
+  - Z-Score: 2.26
+
+
+
+
+Week: 2018-03-27 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $4258.48
+  - Rolling Mean: $748.68
+  - Standard Deviation: $1552.20
+  - Z-Score: 2.26
+
+
+
+
+Week: 2018-09-11 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $4204.86
+  - Previous Week Cost: $9708.14
+
+
+
+
+Week: 2018-01-29 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $4138.67
+  - Rolling Mean: $764.04
+  - Standard Deviation: $1496.55
+  - Z-Score: 2.25
+
+
+
+
+Week: 2018-03-02 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $4038.62
+  - Rolling Mean: $746.59
+  - Standard Deviation: $1457.24
+  - Z-Score: 2.26
+
+
+
+
+Week: 2018-04-02 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $4026.05
+  - Rolling Mean: $711.30
+  - Standard Deviation: $1465.88
+  - Z-Score: 2.26
+
+
+
+
+Week: 2018-03-20 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $3981.03
+  - Rolling Mean: $723.84
+  - Standard Deviation: $1442.47
+  - Z-Score: 2.26
+
+
+
+
+Week: 2018-06-26 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $3981.01
+  - Previous Week Cost: $11970.83
+
+
+
+
+Week: 2018-05-01 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $3761.35
+  - Previous Week Cost: $10291.98
+
+
+
+
+Week: 2017-04-21 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $3474.71
+  - Rolling Mean: $624.37
+  - Standard Deviation: $1258.26
+  - Z-Score: 2.27
+
+
+
+
+Week: 2017-12-28 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $3460.96
+  - Rolling Mean: $553.65
+  - Standard Deviation: $1283.19
+  - Z-Score: 2.27
+
+
+
+
+Week: 2018-01-19 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $3317.30
+  - Rolling Mean: $658.50
+  - Standard Deviation: $1177.17
+  - Z-Score: 2.26
+
+
+
+
+Week: 2018-11-20 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $3284.59
+  - Previous Week Cost: $8487.08
+
+
+
+
+Week: 2017-11-27 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $3253.50
+  - Rolling Mean: $531.85
+  - Standard Deviation: $1200.47
+  - Z-Score: 2.27
+
+
+
+
+Week: 2018-07-26 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $2827.37
+  - Previous Week Cost: $8757.94
+Change Point:
+  - Total Cost: $2827.37
+  - Previous Two Weeks Average Cost: $9163.08
+  - Next Two Weeks Average Cost: $733.36
+
+
+
+
+Week: 2017-06-13 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $2817.87
+  - Rolling Mean: $606.52
+  - Standard Deviation: $985.06
+  - Z-Score: 2.24
+
+
+
+
+Week: 2017-08-21 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $1869.60
+  - Rolling Mean: $358.68
+  - Standard Deviation: $670.12
+  - Z-Score: 2.25
+
+
+
+
+Week: 2018-11-23 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $1703.43
+  - Previous Week Cost: $6954.05
+
+
+
+
+Week: 2017-05-05 00:00:00
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $1317.49
+  - Rolling Mean: $375.66
+  - Standard Deviation: $438.51
+  - Z-Score: 2.15
+
+
+
+
+Week: 2017-10-18 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $894.55
+  - Rolling Mean: $246.97
+  - Standard Deviation: $300.83
+  - Z-Score: 2.15
+
+
+
+
+Week: 2017-04-11 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), All, Clinical Laboratory
+---------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $831.05
+  - Rolling Mean: $208.08
+  - Standard Deviation: $289.64
+  - Z-Score: 2.15
+
+
+
+
+Week: 2017-05-17 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $760.30
+  - Rolling Mean: $197.33
+  - Standard Deviation: $255.59
+  - Z-Score: 2.20
+
+
+
+
+Week: 2017-02-08 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), All, Clinical Laboratory
+---------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $757.85
+  - Rolling Mean: $175.80
+  - Standard Deviation: $268.59
+  - Z-Score: 2.17
+
+
+
+
+Week: 2017-12-14 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $693.80
+  - Rolling Mean: $243.26
+  - Standard Deviation: $213.71
+  - Z-Score: 2.11
+
+
+
+
+Week: 2018-07-04 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $451.38
+  - Previous Week Cost: $5525.26
+
+
+
+
+Week: 2017-12-07 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), All, Clinical Laboratory
+---------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $447.13
+  - Rolling Mean: $152.30
+  - Standard Deviation: $138.66
+  - Z-Score: 2.13
+
+
+
+
+Week: 2017-03-15 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $273.88
+  - Rolling Mean: $87.62
+  - Standard Deviation: $88.55
+  - Z-Score: 2.10
+
+
+
+
+Week: 2018-03-03 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $158.44
+  - Previous Week Cost: $5814.81
+
+
+
+
+Week: 2018-07-22 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Change Point:
+  - Total Cost: $107.40
+  - Previous Two Weeks Average Cost: $3203.69
+  - Next Two Weeks Average Cost: $11576.93
+
+
+
+
+Week: 2018-12-29 00:00:00
+========================================
+Grouping: All, All, All
+-----------------------
+Metric Anomaly:
+  - Total Cost: $95.20
+  - Previous Week Cost: $5336.11
+
+
+
+
+Week: 2018-12-08 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Metric Anomaly:
+  - Total Cost: $81.38
+  - Previous Week Cost: $9158.26
+
+
+
+
+Week: 2018-06-02 00:00:00
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Z-Score Anomaly:
+  - Total Cost: $16.20
+  - Rolling Mean: $2475.07
+  - Standard Deviation: $1149.15
+  - Z-Score: -2.14
+
+
+

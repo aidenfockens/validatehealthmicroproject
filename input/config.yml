@@ -5,51 +5,30 @@ dataset:
   header: true
 
 variables:
-  index: 
-    type: "integer"
-    description: "Row index"
   service_week: 
     type: "string"
     description: "Service week in YYYY-MM format"
-    time_variable: false
-  service_year: 
-    type: "integer"
-    description: "Year of service"
-  service_yearmonth: 
-    type: "string"
-    description: "Year and month of service in YYYY-MM format"
+    time_variable: true
   service_date: 
     type: "string"
     description: "Date of service in YYYY-MM-DD format"
-    time_variable: true
+    time_variable: false
   betos_cd: 
     type: "string"
     description: "BETOS code for medical service"
     test_variable: true
-  betos_desc: 
-    type: "string"
-    description: "BETOS description of medical service"
   pos_cd: 
     type: "integer"
     description: "Place of service code"
     test_variable: true
-  pos_desc: 
-    type: "string"
-    description: "Description of place of service"
   spec_cd: 
     type: "integer"
     description: "Specialty code of provider"
     test_variable: true
-  spec_desc: 
-    type: "string"
-    description: "Description of specialty of provider"
   paid_amount: 
     type: "float"
     description: "Amount paid for service"
     metric_variable: true  
-  utilization: 
-    type: "integer"
-    description: "Utilization count"
 
 metadata:
   source: "Healthcare Claims Data"
