@@ -9,7 +9,7 @@ from pyspark.sql.window import Window
 from itertools import chain, combinations
 
 #set up config variables
-with open("config.yml", "r") as file:
+with open("./input/config.yml", "r") as file:
     config = yaml.safe_load(file)
 metric_variable = next((var for var, details in config["variables"].items() if details.get("metric_variable", False)), None)
 time_variable = next((var for var, details in config["variables"].items() if details.get("time_variable", False)), None)
@@ -19,11 +19,11 @@ test_variables = [var for var, details in config["variables"].items() if details
 # set up spark
 spark = SparkSession.builder.appName("OutlierDetection").getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
-df = spark.read.option("header", "true").option("inferSchema", "true").csv("data.csv")
+df = spark.read.option("header", "true").option("inferSchema", "true").csv("./input/data.csv")
 df.createOrReplaceTempView("service_data")
 
 #set up pivot table
-pivot_table_df = pd.read_csv("codes_pivot_table.csv")
+pivot_table_df = pd.read_csv("./input/codes_pivot_table.csv")
 
 
 
@@ -125,7 +125,7 @@ def detect_outliers(group_values=None):
 
 def compute_anomaly_counts():
     """
-    Compute anomaly counts for each unique value of each test variable. But separates beween each test_variable
+    Compute anomaly counts for each unique value of each test variable. Separates beween each test_variable.
     """
     anomaly_counts_dict = {}
     
@@ -283,7 +283,7 @@ def main():
     print("Top 5 anomalous groupings:", top_anomalous_groupings)
     
 
-    
+
 
     # Dictionary to hold report data
     outlier_summary = {}
@@ -335,7 +335,7 @@ def main():
     report = generate_report(filtered_summary)
 
     # Save filtered outlier_summary dictionary to a .txt file
-    output_file = "filtered_outlier_summary.txt"
+    output_file = "./output/filtered_outlier_summary.txt"
     with open(output_file, "w") as f:
         f.write(report)
 

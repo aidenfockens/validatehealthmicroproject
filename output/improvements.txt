@@ -1,0 +1,7 @@
+ - ask whether finding anomalies for all variable combinations is better than determining the most important variable one by one.
+ 
+ - reliance on codes_pivot_table.csv means its not fully automated.
+
+- add feature so you can choose how many most important lines you want to include in the report
+
+- 
