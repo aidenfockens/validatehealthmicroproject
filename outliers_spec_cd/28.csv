@@ -1,0 +1,3 @@
+service_week,total_metric,num_data_points,prev_total_metric,prev_num_data_points,rolling_mean,rolling_std,z_score,is_outlier_z,is_outlier_metric,is_outlier_count,is_outlier
+2018-39,4.15,1,4.15,1,4.15,0.0,0.0,False,False,False,False
+2018-46,4.15,1,4.15,1,4.15,0.0,0.0,False,False,False,False

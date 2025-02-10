@@ -1,0 +1,5 @@
+ - ask what 
+ 
+ - reliance on codes_pivot_table.csv means its not fully automated.
+
+- add feature so you can choose how many most imp
