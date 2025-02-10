@@ -11,7 +11,7 @@ variables:
   service_week: 
     type: "string"
     description: "Service week in YYYY-MM format"
-    time_variable: true
+    time_variable: false
   service_year: 
     type: "integer"
     description: "Year of service"
@@ -21,6 +21,7 @@ variables:
   service_date: 
     type: "string"
     description: "Date of service in YYYY-MM-DD format"
+    time_variable: true
   betos_cd: 
     type: "string"
     description: "BETOS code for medical service"

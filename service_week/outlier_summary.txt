@@ -4,8 +4,8 @@ This report sums up total costs by week.
 
 Anomaly Types:
   - Metric Anomaly: The week's total cost doubled or halved from the previous week.
-  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 days) by more than 2 standard deviations.
-  - Count Anomaly: The number of events for this category doubled or halved compared to the previous week.
+  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 time periods) by more than 2 standard deviations.
+  - Change Points: The mean of the next two values is double the mean of the two previous values. Shows a significant change in data
 ==================================================
 
 
@@ -21,19 +21,6 @@ Z-Score Anomaly:
   - Rolling Mean: $15919.79
   - Standard Deviation: $7375.65
   - Z-Score: 2.25
-
-
-
-
-Week: 2018-18
-========================================
-Grouping: All, Independent Laboratory, Clinical Laboratory
-----------------------------------------------------------
-Z-Score Anomaly:
-  - Total Cost: $30506.15
-  - Rolling Mean: $23032.15
-  - Standard Deviation: $3710.10
-  - Z-Score: 2.01
 
 
 
@@ -62,28 +49,14 @@ Metric Anomaly:
 
 
 
-Week: 2018-22
-========================================
-Grouping: All, Independent Laboratory, All
-------------------------------------------
-Z-Score Anomaly:
-  - Total Cost: $16909.15
-  - Rolling Mean: $21557.22
-  - Standard Deviation: $2313.56
-  - Z-Score: -2.01
-
-
-
-
 Week: 2018-50
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------------------------------------------------
-Count Anomaly:
+Change Point:
   - Total Cost: $13802.25
-  - Previous Week Cost: $26031.07
-  - Events This Week: 7
-  - Events Last Week: 7
+  - Previous Two Weeks Average Cost: $23447.21
+  - Next Two Weeks Average Cost: $8967.31
 
 
 
@@ -103,11 +76,10 @@ Week: 2018-16
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------------------------------------------------
-Count Anomaly:
+Change Point:
   - Total Cost: $13225.51
-  - Previous Week Cost: $11602.99
-  - Events This Week: 7
-  - Events Last Week: 7
+  - Previous Two Weeks Average Cost: $7256.67
+  - Next Two Weeks Average Cost: $16975.01
 
 
 
@@ -116,11 +88,10 @@ Week: 2018-52
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------------------------------------------------
-Count Anomaly:
+Change Point:
   - Total Cost: $12665.57
-  - Previous Week Cost: $12355.25
-  - Events This Week: 7
-  - Events Last Week: 7
+  - Previous Two Weeks Average Cost: $17396.19
+  - Next Two Weeks Average Cost: $1881.11
 
 
 
@@ -129,11 +100,10 @@ Week: 2018-51
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------------------------------------------------
-Count Anomaly:
+Change Point:
   - Total Cost: $12355.25
-  - Previous Week Cost: $13802.25
-  - Events This Week: 7
-  - Events Last Week: 7
+  - Previous Two Weeks Average Cost: $19848.12
+  - Next Two Weeks Average Cost: $7273.34
 
 
 
@@ -145,11 +115,10 @@ Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory,
 Metric Anomaly:
   - Total Cost: $11602.99
   - Previous Week Cost: $5089.76
-Count Anomaly:
+Change Point:
   - Total Cost: $11602.99
-  - Previous Week Cost: $5089.76
-  - Events This Week: 7
-  - Events Last Week: 7
+  - Previous Two Weeks Average Cost: $5023.96
+  - Next Two Weeks Average Cost: $15801.01
 
 
 
@@ -158,11 +127,10 @@ Week: 2018-13
 ========================================
 Grouping: All, Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------
-Count Anomaly:
+Change Point:
   - Total Cost: $6371.12
-  - Previous Week Cost: $5881.86
-  - Events This Week: 34
-  - Events Last Week: 24
+  - Previous Two Weeks Average Cost: $4790.04
+  - Next Two Weeks Average Cost: $15225.69
 
 
 
@@ -182,11 +150,10 @@ Week: 2018-14
 ========================================
 Grouping: All, Independent Laboratory, Clinical Laboratory
 ----------------------------------------------------------
-Count Anomaly:
+Change Point:
   - Total Cost: $6067.86
-  - Previous Week Cost: $6371.12
-  - Events This Week: 39
-  - Events Last Week: 34
+  - Previous Two Weeks Average Cost: $6306.88
+  - Next Two Weeks Average Cost: $20715.43
 
 
 
@@ -217,19 +184,6 @@ Z-Score Anomaly:
 
 
 
-Week: 2017-20
-========================================
-Grouping: All, All, Clinical Laboratory
----------------------------------------
-Z-Score Anomaly:
-  - Total Cost: $4026.67
-  - Rolling Mean: $2187.97
-  - Standard Deviation: $898.19
-  - Z-Score: 2.05
-
-
-
-
 Week: 2017-48
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
@@ -239,32 +193,6 @@ Z-Score Anomaly:
   - Rolling Mean: $1111.16
   - Standard Deviation: $1209.10
   - Z-Score: 2.18
-
-
-
-
-Week: 2017-43
-========================================
-Grouping: Lab tests - other (non-Medicare fee schedule), All, All
------------------------------------------------------------------
-Z-Score Anomaly:
-  - Total Cost: $3411.30
-  - Rolling Mean: $1533.28
-  - Standard Deviation: $926.35
-  - Z-Score: 2.03
-
-
-
-
-Week: 2017-34
-========================================
-Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
-----------------------------------------------------------------------------------------------------
-Z-Score Anomaly:
-  - Total Cost: $2172.60
-  - Rolling Mean: $875.44
-  - Standard Deviation: $634.23
-  - Z-Score: 2.05
 
 
 

@@ -52,17 +52,17 @@ def detect_outliers(group_values=None):
 
     # use config variables to select columns
     df_filtered = df_filtered.select(
-        col(time_variable).alias("service_week"),
+        col(time_variable).alias(time_variable),
         col(metric_variable).alias("total_metric"),
         *[col(var) for var in test_variables]
     )
-    weekly_totals = df_filtered.groupBy("service_week").agg(
+    weekly_totals = df_filtered.groupBy(time_variable).agg(
         spark_sum("total_metric").alias("total_metric"),
         count("*").alias("num_data_points")
     )
 
     #calculation columns
-    window_spec = Window.orderBy("service_week")
+    window_spec = Window.orderBy(time_variable)
     weekly_totals = weekly_totals.withColumn("prev_total_metric", lag("total_metric").over(window_spec))
     weekly_totals = weekly_totals.withColumn("prev_num_data_points", lag("num_data_points").over(window_spec))
 
@@ -95,7 +95,7 @@ def detect_outliers(group_values=None):
     #Anomaly: If Z-score is greater than 2
     weekly_totals = weekly_totals.withColumn(
     "is_outlier_z",
-    when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.0)
+    when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.1)
     )
 
     weekly_totals = weekly_totals.withColumn(
@@ -128,7 +128,7 @@ def detect_outliers(group_values=None):
         mean("total_metric").over(window_spec.rowsBetween(-3, -1))
     )
     weekly_totals = weekly_totals.withColumn(
-    "is_outlier_count",
+    "change_point",
     (((col("mean_next_3") >= 2 * col("mean_prev_3")) |
       (col("mean_prev_3") >= 2 * col("mean_next_3"))) & 
      (spark_abs(col("mean_next_3") - col("mean_prev_3")) > 8000)) & 
@@ -137,7 +137,7 @@ def detect_outliers(group_values=None):
     # Final outlier column (if any conditions are met)
     weekly_totals = weekly_totals.withColumn(
         "is_outlier",
-        col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric") 
+        col("is_outlier_z") | col("change_point") | col("is_outlier_metric") 
     )
 
 
@@ -153,12 +153,12 @@ def compute_anomaly_counts():
     anomaly_counts_dict = {}
     
     for test_variable in test_variables:
-        df_grouped = df.groupBy("service_week", test_variable).agg(
+        df_grouped = df.groupBy(time_variable, test_variable).agg(
             spark_sum("paid_amount").alias("total_metric"),
             count("*").alias("num_data_points")
         )
         
-        window_spec = Window.partitionBy(test_variable).orderBy("service_week")
+        window_spec = Window.partitionBy(test_variable).orderBy(time_variable)
         
         df_grouped = df_grouped.withColumn("prev_total_metric", lag("total_metric").over(window_spec))
         df_grouped = df_grouped.withColumn("prev_num_data_points", lag("num_data_points").over(window_spec))
@@ -174,7 +174,7 @@ def compute_anomaly_counts():
         
         df_anomalies = df_anomalies.withColumn(
             "is_outlier_z",
-            when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.0)
+            when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.1)
         )
         
         df_anomalies = df_anomalies.withColumn(
@@ -193,7 +193,7 @@ def compute_anomaly_counts():
             mean("total_metric").over(window_spec.rowsBetween(-3, -1))
         )
         df_anomalies = df_anomalies.withColumn(
-        "is_outlier_count",
+        "change_point",
         (((col("mean_next_3") >= 2 * col("mean_prev_3")) |
         (col("mean_prev_3") >= 2 * col("mean_next_3"))) & 
         (spark_abs(col("mean_next_3") - col("mean_prev_3")) > 8000)) & 
@@ -202,7 +202,7 @@ def compute_anomaly_counts():
         
         df_anomalies = df_anomalies.withColumn(
             "is_outlier",
-            col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric")
+            col("is_outlier_z") | col("change_point") | col("is_outlier_metric")
         )
         
         anomaly_counts = (
@@ -215,6 +215,75 @@ def compute_anomaly_counts():
 
     
     return anomaly_counts_dict
+
+
+def make_graph(result_df_pd, filtered_summary):
+    result_df_pd['lower_bound'] = result_df_pd['rolling_mean'] - (2.0 * result_df_pd['rolling_std'])
+    result_df_pd['upper_bound'] = result_df_pd['rolling_mean'] + (2.0 * result_df_pd['rolling_std'])
+
+    # Initialize figure
+    plt.figure(figsize=(14, 6))
+
+    # Plot all data points as black dots and connect them with a line
+    plt.plot(result_df_pd[time_variable], result_df_pd['total_metric'], linestyle='-', color='black', alpha=0.5)
+    plt.scatter(result_df_pd[time_variable], result_df_pd['total_metric'], color='black', label="Normal Data", alpha=1.0)  # Ensure normal points are black
+
+    # Fill the acceptable range area (shaded region)
+    plt.fill_between(result_df_pd[time_variable], result_df_pd['lower_bound'], result_df_pd['upper_bound'], color='black', alpha=0.1, label="Acceptable Range (±2 Std Dev)")
+
+    # Define anomaly colors
+    anomaly_colors = {
+        "z_score": 'red',
+        "metric": 'green',
+        "change": 'blue',
+        "multiple": 'purple'  # When multiple outlier conditions apply
+    }
+
+    # Track added labels for the legend
+    legend_labels = {}
+
+    # Iterate over filtered_summary to highlight anomalies
+    for week, anomalies in filtered_summary.items():
+        for anomaly_type in anomalies.values():
+            if len(anomaly_type["anomaly_type"]) > 1:
+                color = anomaly_colors["multiple"]
+                label = "Multiple Outliers"
+            else:
+                color = anomaly_colors[anomaly_type["anomaly_type"][0]]
+                label = anomaly_type["anomaly_type"][0].replace("_", " ").capitalize() + " Outliers"
+                if "change" in anomaly_type["anomaly_type"]:
+                    label = "Change Point"
+            # Plot the anomaly points
+            week_data = result_df_pd[result_df_pd[time_variable] == week]
+            if not week_data.empty:
+                plt.scatter(week_data[time_variable], week_data['total_metric'], color=color, label=label if label not in legend_labels else "", zorder=3)
+                legend_labels[label] = color  # Ensure each label appears once in the legend
+
+    # Ensure only unique legend labels are added
+    legend_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=8, label=label)
+                      for label, color in legend_labels.items()]
+    legend_handles.insert(0, plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='black', markersize=8, label="Normal Data"))
+
+    # Improve X-axis readability by only labeling anomalous weeks
+    outlier_ticks = list(filtered_summary.keys())
+    plt.xticks(outlier_ticks, rotation=45, ha='right')  # Show only weeks with anomalies
+    
+    if "week" in time_variable:
+        plt.xlabel("Week")
+    if "date" in time_variable:
+        plt.xlabel("Day")
+    plt.ylabel("Total Paid Amount")
+    plt.title(f"Paid Amount by {time_variable} with Outliers Highlighted")
+    plt.legend(handles=legend_handles)
+    plt.grid(True, linestyle="--", alpha=0.5)
+
+    # Save the plot
+    plt.savefig(f"./{time_variable}/outliers.png", bbox_inches='tight')
+
+
+
+
+
 
 
 
@@ -255,49 +324,12 @@ def main():
         if group_values == {}:
             result_df_pd = result_df.toPandas()
 
-            result_df_pd['lower_bound'] = result_df_pd['rolling_mean'] - (2.0 * result_df_pd['rolling_std'])
-            result_df_pd['upper_bound'] = result_df_pd['rolling_mean'] + (2.0 * result_df_pd['rolling_std'])
-
-            # Plot total_metric (paid amount) over time
-            plt.figure(figsize=(14, 6))
-            plt.plot(result_df_pd[time_variable], result_df_pd['total_metric'], marker='o', linestyle='-', label="Total Paid Amount", color='black')
-
-            # Fill the acceptable range area (shaded region)
-            plt.fill_between(result_df_pd[time_variable], result_df_pd['lower_bound'], result_df_pd['upper_bound'], color='gray', alpha=0.3, label="Acceptable Range (±2 Std Dev)")
-
-            # Highlight different outliers with different colors
-            outliers_z = result_df_pd[result_df_pd['is_outlier_z'] == True]
-            outliers_count = result_df_pd[result_df_pd['is_outlier_count'] == True]
-            outliers_metric = result_df_pd[result_df_pd['is_outlier_metric'] == True]
-
-            # Handle cases where multiple outlier conditions are met (e.g., Z-score & count)
-            outliers_multiple = result_df_pd[(result_df_pd['is_outlier_z'] & result_df_pd['is_outlier_count']) |
-                                (result_df_pd['is_outlier_z'] & result_df_pd['is_outlier_metric']) |
-                                (result_df_pd['is_outlier_count'] & result_df_pd['is_outlier_metric'])]
-
-            # Plot outliers in different colors
-            plt.scatter(outliers_z[time_variable], outliers_z['total_metric'], color='red', label="Z-Score Outliers", zorder=3)
-            plt.scatter(outliers_count[time_variable], outliers_count['total_metric'], color='blue', label="Count-Based Outliers", zorder=3)
-            plt.scatter(outliers_metric[time_variable], outliers_metric['total_metric'], color='green', label="Metric-Based Outliers", zorder=3)
-            plt.scatter(outliers_multiple[time_variable], outliers_multiple['total_metric'], color='purple', label="Multiple Outlier Conditions", zorder=3)
-
-            # Labels and Formatting
-            plt.xticks(rotation=45)
-            plt.xlabel("Week")
-            plt.ylabel("Total Paid Amount")
-            plt.title("Weekly Paid Amount with Outliers Highlighted")
-            plt.legend()
-            plt.grid(True)
-
-            # Save the plot
-            plt.savefig("./output/weekly_paid_amount_outliers.png", bbox_inches='tight')
-            plt.show()
 
         # Collect weeks where is_outlier is True
         outliers = result_df.filter(col("is_outlier") == True).collect()
 
         for row in outliers:
-            week = row["service_week"]
+            week = row[time_variable]
             if week not in outlier_summary:
                 outlier_summary[week] = {}
 
@@ -312,25 +344,30 @@ def main():
                     "count": row["num_data_points"],
                     "prev_count": row["prev_num_data_points"],
                     "total_metric": row["total_metric"],
-                    "prev_total_metric": row["prev_total_metric"]
+                    "prev_total_metric": row["prev_total_metric"],
+                    "mean_prev_3": row["mean_prev_3"],
+                    "mean_next_3": row["mean_next_3"]
                 }
 
             if row["is_outlier_z"]:
                 outlier_summary[week][group_key]["anomaly_type"].append("z_score")
             if row["is_outlier_metric"]:
                 outlier_summary[week][group_key]["anomaly_type"].append("metric")
-            if row["is_outlier_count"]:
-                outlier_summary[week][group_key]["anomaly_type"].append("count")
+            if row["change_point"]:
+                outlier_summary[week][group_key]["anomaly_type"].append("change")
 
     # Apply filtering to only keep the most specific report
     filtered_summary = {week: filter_anomalies(anomalies) for week, anomalies in outlier_summary.items()}
+    make_graph(result_df_pd,filtered_summary)
+
+
 
     filtered_summary = dict(sorted(filtered_summary.items(), key=lambda x: -max(details["total_cost"] for details in x[1].values())))
     #generate text for the report based on anomaly and data
     report = generate_report(filtered_summary)
 
     # Save filtered outlier_summary dictionary to a .txt file
-    output_file = "./output/filtered_outlier_summary.txt"
+    output_file = f"./{time_variable}/outliers_summary.txt"
     with open(output_file, "w") as f:
         f.write(report)
 
@@ -396,8 +433,8 @@ def generate_report(filtered_summary):
     report_lines.append("")
     report_lines.append("Anomaly Types:")
     report_lines.append("  - Metric Anomaly: The week's total cost doubled or halved from the previous week.")
-    report_lines.append("  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 days) by more than 2 standard deviations.")
-    report_lines.append("  - Count Anomaly: The number of events for this category doubled or halved compared to the previous week.")
+    report_lines.append("  - Z-Score Anomaly: The total cost for the week was over or under the rolling mean (over 7 time periods) by more than 2 standard deviations.")
+    report_lines.append("  - Change Points: The mean of the next two values is double the mean of the two previous values. Shows a significant change in data")
     report_lines.append("=" * 50)
     report_lines.append("\n")
 
@@ -423,12 +460,12 @@ def generate_report(filtered_summary):
                 report_lines.append(f"  - Total Cost: ${details['total_metric']:.2f}")
                 report_lines.append(f"  - Previous Week Cost: ${details['prev_total_metric']:.2f}")
 
-            if "count" in details["anomaly_type"]:
-                report_lines.append("Count Anomaly:")
+            if "change" in details["anomaly_type"]:
+                report_lines.append("Change Point:")
                 report_lines.append(f"  - Total Cost: ${details['total_metric']:.2f}")
-                report_lines.append(f"  - Previous Week Cost: ${details['prev_total_metric']:.2f}")
-                report_lines.append(f"  - Events This Week: {details['count']}")
-                report_lines.append(f"  - Events Last Week: {details['prev_count']}")
+                report_lines.append(f"  - Previous Two Weeks Average Cost: ${details['mean_prev_3']:.2f}")
+                report_lines.append(f"  - Next Two Weeks Average Cost: ${details['mean_next_3']:.2f}")
+               
 
             if "z_score" in details["anomaly_type"]:
                 z_score_value = (details["total_metric"] - details["rolling_mean"]) / details["rolling_std"]
@@ -443,40 +480,6 @@ def generate_report(filtered_summary):
         report_lines.append("\n") 
 
     return "\n".join(report_lines)
-
-
-def test_variable(index):
-    """
-    Used for EDA, to generate the csvs I have in my other folders. Choose the index out of test_variables to generate csvs 
-    for each value of that test variable.
-    """
-
-    if not test_variables:
-        print("No test variables found in config.yml. Exiting.")
-        return
-
-    # Choose the test variable
-    first_test_variable = test_variables[index]
-
-    # Get all unique values of the first test variable
-    unique_values = df.select(first_test_variable).distinct().rdd.flatMap(lambda x: x).collect()
-
-
-    # Create output folder for the test variable results
-    base_output_folder = f"outliers_{first_test_variable}"
-    os.makedirs(base_output_folder, exist_ok=True)
-
-    for value in unique_values:
-
-
-        # Run outlier detection for the specific value
-        result_df = detect_outliers({first_test_variable: value})
-
-        # Save CSV
-        output_csv = os.path.join(base_output_folder, f"{value}.csv")
-        result_df.toPandas().to_csv(output_csv, index=False)
-
-        print(f"Saved: {output_csv}")
 
 
 
