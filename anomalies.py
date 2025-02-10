@@ -123,8 +123,127 @@ def detect_outliers(group_values=None):
 
 
 
+def compute_anomaly_counts():
+    """
+    Compute anomaly counts for each unique value of each test variable. But separates beween each test_variable
+    """
+    anomaly_counts_dict = {}
+    
+    for test_variable in test_variables:
+        df_grouped = df.groupBy("service_week", test_variable).agg(
+            spark_sum("paid_amount").alias("total_metric"),
+            count("*").alias("num_data_points")
+        )
+        
+        window_spec = Window.partitionBy(test_variable).orderBy("service_week")
+        
+        df_grouped = df_grouped.withColumn("prev_total_metric", lag("total_metric").over(window_spec))
+        df_grouped = df_grouped.withColumn("prev_num_data_points", lag("num_data_points").over(window_spec))
+        df_grouped = df_grouped.withColumn("rolling_mean", mean("total_metric").over(window_spec.rowsBetween(-3, 3)))
+        df_grouped = df_grouped.withColumn("rolling_std", stddev("total_metric").over(window_spec.rowsBetween(-3, 3)))
+        
+        df_anomalies = df_grouped.withColumn(
+            "z_score",
+            when(col("rolling_std") == 0, lit(0)).otherwise(
+                spark_abs((col("total_metric") - col("rolling_mean")) / col("rolling_std"))
+            )
+        )
+        
+        df_anomalies = df_anomalies.withColumn(
+            "is_outlier_z",
+            when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2)
+        )
+        
+        df_anomalies = df_anomalies.withColumn(
+            "is_outlier_metric",
+            ((col("total_metric") >= 2 * col("prev_total_metric")) |
+             (col("total_metric") <= 0.5 * col("prev_total_metric"))) &
+            (spark_abs(col("total_metric") - col("prev_total_metric")) > 600)
+        )
+        
+        df_anomalies = df_anomalies.withColumn(
+            "is_outlier_count",
+            ((col("num_data_points") >= 2 * col("prev_num_data_points")) |
+             (col("num_data_points") <= 0.5 * col("prev_num_data_points"))) &
+            ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
+        )
+        
+        df_anomalies = df_anomalies.withColumn(
+            "is_outlier",
+            col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric")
+        )
+        
+        anomaly_counts = (
+            df_anomalies.groupBy(test_variable)
+            .agg(spark_sum(col("is_outlier").cast("int")).alias("anomaly_count"))
+            .collect()
+        )
+        
+        anomaly_counts_dict[test_variable] = {row[test_variable]: row["anomaly_count"] or 0 for row in anomaly_counts}
+
+    
+    return anomaly_counts_dict
 
 
+def compute_anomalous_groupings():
+    """
+    Compute anomaly counts for all unique combinations of test variables using groupBy("service_week", *test_variables)
+    and return the top 5 most anomalous groupings. Does them all together, unlike compute_anomaly_counts
+    """
+    df_grouped = df.groupBy("service_week", *test_variables).agg(
+        spark_sum("paid_amount").alias("total_metric"),
+        count("*").alias("num_data_points")
+    )
+    
+    window_spec = Window.partitionBy(*test_variables).orderBy("service_week")
+    
+    df_grouped = df_grouped.withColumn("prev_total_metric", lag("total_metric").over(window_spec))
+    df_grouped = df_grouped.withColumn("prev_num_data_points", lag("num_data_points").over(window_spec))
+    df_grouped = df_grouped.withColumn("rolling_mean", mean("total_metric").over(window_spec.rowsBetween(-3, 3)))
+    df_grouped = df_grouped.withColumn("rolling_std", stddev("total_metric").over(window_spec.rowsBetween(-3, 3)))
+    
+    df_anomalies = df_grouped.withColumn(
+        "z_score",
+        when(col("rolling_std") == 0, lit(0)).otherwise(
+            spark_abs((col("total_metric") - col("rolling_mean")) / col("rolling_std"))
+        )
+    )
+    
+    df_anomalies = df_anomalies.withColumn(
+        "is_outlier_z",
+        when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2)
+    )
+    
+    df_anomalies = df_anomalies.withColumn(
+        "is_outlier_metric",
+        ((col("total_metric") >= 2 * col("prev_total_metric")) |
+         (col("total_metric") <= 0.5 * col("prev_total_metric"))) &
+        (spark_abs(col("total_metric") - col("prev_total_metric")) > 600)
+    )
+    
+    df_anomalies = df_anomalies.withColumn(
+        "is_outlier_count",
+        ((col("num_data_points") >= 2 * col("prev_num_data_points")) |
+         (col("num_data_points") <= 0.5 * col("prev_num_data_points"))) &
+        ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
+    )
+    
+    df_anomalies = df_anomalies.withColumn(
+        "is_outlier",
+        col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric")
+    )
+    print("Total number of unique groupings:", df_anomalies.select(*test_variables).distinct().count())
+
+
+    anomaly_counts = (
+        df_anomalies.groupBy(*test_variables)
+        .agg(spark_sum(col("is_outlier").cast("int")).alias("anomaly_count"))
+        .orderBy(col("anomaly_count").desc())
+        .limit(5)
+        .collect()
+    )
+    
+    return [{var: row[var] for var in test_variables} for row in anomaly_counts]
 
 
 
@@ -141,29 +260,30 @@ def main():
     creates a report indicating the anomalous weeks and why they were flagged
     """
 
+
+
+
+    
     if not test_variables:
         print("No test variables found in config.yml. Exiting.")
         return
+    
+    #testing out compute_anomaly_counts():
+    anomaly_counts_dict = compute_anomaly_counts()
+    
+    top_anomalous_values = {
+        test_variable: max(anomaly_counts_dict[test_variable], key=anomaly_counts_dict[test_variable].get)
+        for test_variable in anomaly_counts_dict if anomaly_counts_dict[test_variable]
+    }
+    
+    print("Top single anomalous values:",top_anomalous_values)
 
-    # Find the most anomalous value for each test variable
-    top_anomalous_values = {}
-    for test_variable in test_variables:
+    #testing out compute_anomalous_groupings():
+    top_anomalous_groupings = compute_anomalous_groupings()
+    print("Top 5 anomalous groupings:", top_anomalous_groupings)
+    
 
-        unique_values = df.select(test_variable).distinct().rdd.flatMap(lambda x: x).collect()
-        outlier_counts = []
-
-        for value in unique_values:
-            #call my detect_outliers function for every value in every test_variable, count the outliers
-            result_df = detect_outliers({test_variable: value})
-            outlier_count = result_df.filter(col("is_outlier") == True).count()
-            outlier_counts.append((value, outlier_count))
-
-        # Keep only the most anomalous value for each test variable
-        if outlier_counts:
-            top_values = sorted(outlier_counts, key=lambda x: x[1], reverse=True)[:1]
-            top_anomalous_values[test_variable] = top_values[0][0]  # Only keep the value, not the count
-
-
+    
 
     # Dictionary to hold report data
     outlier_summary = {}
