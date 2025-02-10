@@ -1,4 +1,6 @@
 #imports
+import matplotlib.pyplot as plt
+import numpy as np
 import os
 import yaml
 import json
@@ -93,7 +95,7 @@ def detect_outliers(group_values=None):
     #Anomaly: If Z-score is greater than 2
     weekly_totals = weekly_totals.withColumn(
     "is_outlier_z",
-    when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2)
+    when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.0)
     )
 
     # Anomaly: If data points are double or half of last week, with a difference of at least 600
@@ -101,15 +103,15 @@ def detect_outliers(group_values=None):
     "is_outlier_metric",
     ((col("total_metric") >= 2 * col("prev_total_metric")) |
      (col("total_metric") <= 0.5 * col("prev_total_metric"))) &
-    (spark_abs(col("total_metric") - col("prev_total_metric")) > 600)
+    (spark_abs(col("total_metric") - col("prev_total_metric")) > 5000)
     )
 
 
     # Anomaly: If total metric is double or half of last week, with a difference of at least 10
     weekly_totals = weekly_totals.withColumn(
         "is_outlier_count",
-        ((col("num_data_points") >= 2 * col("prev_num_data_points")) |
-        (col("num_data_points") <= 0.5 * col("prev_num_data_points"))) &
+        ((col("num_data_points") >= 5 * col("prev_num_data_points")) |
+        (col("num_data_points") <= 0.2 * col("prev_num_data_points"))) &
         ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
     )
 
@@ -151,20 +153,20 @@ def compute_anomaly_counts():
         
         df_anomalies = df_anomalies.withColumn(
             "is_outlier_z",
-            when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2)
+            when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.0)
         )
         
         df_anomalies = df_anomalies.withColumn(
             "is_outlier_metric",
             ((col("total_metric") >= 2 * col("prev_total_metric")) |
              (col("total_metric") <= 0.5 * col("prev_total_metric"))) &
-            (spark_abs(col("total_metric") - col("prev_total_metric")) > 600)
+            (spark_abs(col("total_metric") - col("prev_total_metric")) > 5000)
         )
         
         df_anomalies = df_anomalies.withColumn(
             "is_outlier_count",
-            ((col("num_data_points") >= 2 * col("prev_num_data_points")) |
-             (col("num_data_points") <= 0.5 * col("prev_num_data_points"))) &
+            ((col("num_data_points") >= 5 * col("prev_num_data_points")) |
+             (col("num_data_points") <= 0.2 * col("prev_num_data_points"))) &
             ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
         )
         
@@ -185,74 +187,6 @@ def compute_anomaly_counts():
     return anomaly_counts_dict
 
 
-def compute_anomalous_groupings():
-    """
-    Compute anomaly counts for all unique combinations of test variables using groupBy("service_week", *test_variables)
-    and return the top 5 most anomalous groupings. Does them all together, unlike compute_anomaly_counts
-    """
-    df_grouped = df.groupBy("service_week", *test_variables).agg(
-        spark_sum("paid_amount").alias("total_metric"),
-        count("*").alias("num_data_points")
-    )
-    
-    window_spec = Window.partitionBy(*test_variables).orderBy("service_week")
-    
-    df_grouped = df_grouped.withColumn("prev_total_metric", lag("total_metric").over(window_spec))
-    df_grouped = df_grouped.withColumn("prev_num_data_points", lag("num_data_points").over(window_spec))
-    df_grouped = df_grouped.withColumn("rolling_mean", mean("total_metric").over(window_spec.rowsBetween(-3, 3)))
-    df_grouped = df_grouped.withColumn("rolling_std", stddev("total_metric").over(window_spec.rowsBetween(-3, 3)))
-    
-    df_anomalies = df_grouped.withColumn(
-        "z_score",
-        when(col("rolling_std") == 0, lit(0)).otherwise(
-            spark_abs((col("total_metric") - col("rolling_mean")) / col("rolling_std"))
-        )
-    )
-    
-    df_anomalies = df_anomalies.withColumn(
-        "is_outlier_z",
-        when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2)
-    )
-    
-    df_anomalies = df_anomalies.withColumn(
-        "is_outlier_metric",
-        ((col("total_metric") >= 2 * col("prev_total_metric")) |
-         (col("total_metric") <= 0.5 * col("prev_total_metric"))) &
-        (spark_abs(col("total_metric") - col("prev_total_metric")) > 600)
-    )
-    
-    df_anomalies = df_anomalies.withColumn(
-        "is_outlier_count",
-        ((col("num_data_points") >= 2 * col("prev_num_data_points")) |
-         (col("num_data_points") <= 0.5 * col("prev_num_data_points"))) &
-        ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
-    )
-    
-    df_anomalies = df_anomalies.withColumn(
-        "is_outlier",
-        col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric")
-    )
-    print("Total number of unique groupings:", df_anomalies.select(*test_variables).distinct().count())
-
-
-    anomaly_counts = (
-        df_anomalies.groupBy(*test_variables)
-        .agg(spark_sum(col("is_outlier").cast("int")).alias("anomaly_count"))
-        .orderBy(col("anomaly_count").desc())
-        .limit(5)
-        .collect()
-    )
-    
-    return [{var: row[var] for var in test_variables} for row in anomaly_counts]
-
-
-
-
-
-
-
-
-
 
 def main():
     """
@@ -260,10 +194,6 @@ def main():
     creates a report indicating the anomalous weeks and why they were flagged
     """
 
-
-
-
-    
     if not test_variables:
         print("No test variables found in config.yml. Exiting.")
         return
@@ -278,13 +208,6 @@ def main():
     
     print("Top single anomalous values:",top_anomalous_values)
 
-    #testing out compute_anomalous_groupings():
-    top_anomalous_groupings = compute_anomalous_groupings()
-    print("Top 5 anomalous groupings:", top_anomalous_groupings)
-    
-
-
-
     # Dictionary to hold report data
     outlier_summary = {}
 
@@ -294,9 +217,51 @@ def main():
     for subset in test_variable_subsets:
         group_values = {var: top_anomalous_values[var] for var in subset if var in top_anomalous_values}
 
-
+        print(group_values)
         # Run detect_outliers with the subset of test variables
         result_df = detect_outliers(group_values)
+
+
+        if group_values == {}:
+            result_df_pd = result_df.toPandas()
+
+            result_df_pd['lower_bound'] = result_df_pd['rolling_mean'] - (2.0 * result_df_pd['rolling_std'])
+            result_df_pd['upper_bound'] = result_df_pd['rolling_mean'] + (2.0 * result_df_pd['rolling_std'])
+
+            # Plot total_metric (paid amount) over time
+            plt.figure(figsize=(14, 6))
+            plt.plot(result_df_pd[time_variable], result_df_pd['total_metric'], marker='o', linestyle='-', label="Total Paid Amount", color='black')
+
+            # Fill the acceptable range area (shaded region)
+            plt.fill_between(result_df_pd[time_variable], result_df_pd['lower_bound'], result_df_pd['upper_bound'], color='gray', alpha=0.3, label="Acceptable Range (±2 Std Dev)")
+
+            # Highlight different outliers with different colors
+            outliers_z = result_df_pd[result_df_pd['is_outlier_z'] == True]
+            outliers_count = result_df_pd[result_df_pd['is_outlier_count'] == True]
+            outliers_metric = result_df_pd[result_df_pd['is_outlier_metric'] == True]
+
+            # Handle cases where multiple outlier conditions are met (e.g., Z-score & count)
+            outliers_multiple = result_df_pd[(result_df_pd['is_outlier_z'] & result_df_pd['is_outlier_count']) |
+                                (result_df_pd['is_outlier_z'] & result_df_pd['is_outlier_metric']) |
+                                (result_df_pd['is_outlier_count'] & result_df_pd['is_outlier_metric'])]
+
+            # Plot outliers in different colors
+            plt.scatter(outliers_z[time_variable], outliers_z['total_metric'], color='red', label="Z-Score Outliers", zorder=3)
+            plt.scatter(outliers_count[time_variable], outliers_count['total_metric'], color='blue', label="Count-Based Outliers", zorder=3)
+            plt.scatter(outliers_metric[time_variable], outliers_metric['total_metric'], color='green', label="Metric-Based Outliers", zorder=3)
+            plt.scatter(outliers_multiple[time_variable], outliers_multiple['total_metric'], color='purple', label="Multiple Outlier Conditions", zorder=3)
+
+            # Labels and Formatting
+            plt.xticks(rotation=45)
+            plt.xlabel("Week")
+            plt.ylabel("Total Paid Amount")
+            plt.title("Weekly Paid Amount with Outliers Highlighted")
+            plt.legend()
+            plt.grid(True)
+
+            # Save the plot
+            plt.savefig("./output/weekly_paid_amount_outliers.png", bbox_inches='tight')
+            plt.show()
 
         # Collect weeks where is_outlier is True
         outliers = result_df.filter(col("is_outlier") == True).collect()
@@ -338,6 +303,8 @@ def main():
     output_file = "./output/filtered_outlier_summary.txt"
     with open(output_file, "w") as f:
         f.write(report)
+
+    
 
 
 
