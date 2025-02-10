@@ -98,6 +98,17 @@ def detect_outliers(group_values=None):
     when(col("rolling_std") == 0, lit(False)).otherwise(col("z_score") > 2.0)
     )
 
+    weekly_totals = weekly_totals.withColumn(
+    "mean_next_3",
+    mean("total_metric").over(window_spec.rowsBetween(1, 3))
+    )
+    weekly_totals = weekly_totals.withColumn(
+        "mean_prev_3",
+        mean("total_metric").over(window_spec.rowsBetween(-3, -1))
+    )
+
+
+
     # Anomaly: If data points are double or half of last week, with a difference of at least 600
     weekly_totals = weekly_totals.withColumn(
     "is_outlier_metric",
@@ -109,17 +120,27 @@ def detect_outliers(group_values=None):
 
     # Anomaly: If total metric is double or half of last week, with a difference of at least 10
     weekly_totals = weekly_totals.withColumn(
-        "is_outlier_count",
-        ((col("num_data_points") >= 5 * col("prev_num_data_points")) |
-        (col("num_data_points") <= 0.2 * col("prev_num_data_points"))) &
-        ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
+    "mean_next_3",
+    mean("total_metric").over(window_spec.rowsBetween(1, 3))
     )
-
+    weekly_totals = weekly_totals.withColumn(
+        "mean_prev_3",
+        mean("total_metric").over(window_spec.rowsBetween(-3, -1))
+    )
+    weekly_totals = weekly_totals.withColumn(
+    "is_outlier_count",
+    (((col("mean_next_3") >= 2 * col("mean_prev_3")) |
+      (col("mean_prev_3") >= 2 * col("mean_next_3"))) & 
+     (spark_abs(col("mean_next_3") - col("mean_prev_3")) > 8000)) & 
+    col("mean_prev_3").isNotNull() & col("mean_next_3").isNotNull()
+)
     # Final outlier column (if any conditions are met)
     weekly_totals = weekly_totals.withColumn(
         "is_outlier",
-        col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric")
+        col("is_outlier_z") | col("is_outlier_count") | col("is_outlier_metric") 
     )
+
+
 
     return weekly_totals
 
@@ -164,11 +185,20 @@ def compute_anomaly_counts():
         )
         
         df_anomalies = df_anomalies.withColumn(
-            "is_outlier_count",
-            ((col("num_data_points") >= 5 * col("prev_num_data_points")) |
-             (col("num_data_points") <= 0.2 * col("prev_num_data_points"))) &
-            ((col("num_data_points") > 10) | (col("prev_num_data_points") > 10))
+        "mean_next_3",
+        mean("total_metric").over(window_spec.rowsBetween(1, 3))
         )
+        df_anomalies = df_anomalies.withColumn(
+            "mean_prev_3",
+            mean("total_metric").over(window_spec.rowsBetween(-3, -1))
+        )
+        df_anomalies = df_anomalies.withColumn(
+        "is_outlier_count",
+        (((col("mean_next_3") >= 2 * col("mean_prev_3")) |
+        (col("mean_prev_3") >= 2 * col("mean_next_3"))) & 
+        (spark_abs(col("mean_next_3") - col("mean_prev_3")) > 8000)) & 
+        col("mean_prev_3").isNotNull() & col("mean_next_3").isNotNull()
+    )
         
         df_anomalies = df_anomalies.withColumn(
             "is_outlier",

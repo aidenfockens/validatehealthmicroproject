@@ -75,6 +75,19 @@ Z-Score Anomaly:
 
 
 
+Week: 2018-50
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Count Anomaly:
+  - Total Cost: $13802.25
+  - Previous Week Cost: $26031.07
+  - Events This Week: 7
+  - Events Last Week: 7
+
+
+
+
 Week: 2018-31
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
@@ -86,6 +99,45 @@ Metric Anomaly:
 
 
 
+Week: 2018-16
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Count Anomaly:
+  - Total Cost: $13225.51
+  - Previous Week Cost: $11602.99
+  - Events This Week: 7
+  - Events Last Week: 7
+
+
+
+
+Week: 2018-52
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Count Anomaly:
+  - Total Cost: $12665.57
+  - Previous Week Cost: $12355.25
+  - Events This Week: 7
+  - Events Last Week: 7
+
+
+
+
+Week: 2018-51
+========================================
+Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------------------------------------------------
+Count Anomaly:
+  - Total Cost: $12355.25
+  - Previous Week Cost: $13802.25
+  - Events This Week: 7
+  - Events Last Week: 7
+
+
+
+
 Week: 2018-15
 ========================================
 Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory, Clinical Laboratory
@@ -93,6 +145,24 @@ Grouping: Lab tests - other (non-Medicare fee schedule), Independent Laboratory,
 Metric Anomaly:
   - Total Cost: $11602.99
   - Previous Week Cost: $5089.76
+Count Anomaly:
+  - Total Cost: $11602.99
+  - Previous Week Cost: $5089.76
+  - Events This Week: 7
+  - Events Last Week: 7
+
+
+
+
+Week: 2018-13
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Count Anomaly:
+  - Total Cost: $6371.12
+  - Previous Week Cost: $5881.86
+  - Events This Week: 34
+  - Events Last Week: 24
 
 
 
@@ -104,6 +174,19 @@ Grouping: All, All, All
 Metric Anomaly:
   - Total Cost: $6316.40
   - Previous Week Cost: $13398.65
+
+
+
+
+Week: 2018-14
+========================================
+Grouping: All, Independent Laboratory, Clinical Laboratory
+----------------------------------------------------------
+Count Anomaly:
+  - Total Cost: $6067.86
+  - Previous Week Cost: $6371.12
+  - Events This Week: 39
+  - Events Last Week: 34
 
 
 
